@@ -1,0 +1,39 @@
+{
+  "key": "students",
+  "name": "Student Management",
+  "description": "A university's students, courses, attendance and academic records.",
+  "database": "omniagent_students",
+  "hints": "Branch values are stored exactly as 'AI', 'Computer Science', 'Electronics', 'Mechanical', 'Civil' (check with get_distinct_values if unsure). Attendance status is present/absent/late. Students' emails and phone numbers are not accessible.",
+  "tables": {
+    "students": {
+      "description": "One row per enrolled student.",
+      "columns": "*",
+      "exclude": ["email", "phone"],
+      "column_descriptions": {"cgpa": "Cumulative grade point average (0-10)", "semester": "Current semester number"}
+    },
+    "courses": {"description": "Courses offered; branch 'General' means open to all branches.", "columns": "*"},
+    "enrollments": {"description": "Which student is enrolled in which course.", "columns": "*"},
+    "attendance": {"description": "One row per student, course and class date.", "columns": "*"},
+    "academic_records": {"description": "Marks and grades per student, course and term.", "columns": "*"}
+  },
+  "reports": [
+    {
+      "name": "attendance_by_course",
+      "description": "Attendance counts (present/absent/late) for every course",
+      "kind": "aggregate",
+      "plan": {
+        "table": "attendance",
+        "joins": ["courses"],
+        "metrics": [{"func": "count", "alias": "records"}],
+        "group_by": [{"column": "courses.title"}, {"column": "attendance.status"}],
+        "limit": 100
+      }
+    }
+  ],
+  "examples": [
+    "Show students in the AI branch.",
+    "Summarize attendance by course.",
+    "Who are the top 5 students by CGPA?",
+    "What is the average marks per course?"
+  ]
+}

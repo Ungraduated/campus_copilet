@@ -1,0 +1,35 @@
+{
+  "key": "helpdesk",
+  "name": "Helpdesk",
+  "description": "A support team's tickets, statuses, priorities and assigned teams.",
+  "database": "omniagent_helpdesk",
+  "hints": "Statuses: Open, In Progress, Waiting on Customer (all open) and Resolved, Closed (not open). ticket_statuses.is_open tells whether a status counts as open. Priorities: Low, Medium, High, Critical; 'high-priority' normally means High or Critical. Requester emails are not accessible.",
+  "tables": {
+    "tickets": {"description": "Support tickets.", "columns": "*", "exclude": ["requester_email"]},
+    "ticket_statuses": {"description": "Ticket statuses and whether they are open.", "columns": "*"},
+    "priorities": {"description": "Priority levels; higher rank_order = more urgent.", "columns": "*"},
+    "teams": {"description": "Support teams.", "columns": "*"},
+    "agents": {"description": "Support agents and their team.", "columns": "*"}
+  },
+  "reports": [
+    {
+      "name": "open_tickets_by_priority",
+      "description": "Number of open tickets per priority",
+      "kind": "aggregate",
+      "plan": {
+        "table": "tickets",
+        "joins": ["ticket_statuses", "priorities"],
+        "metrics": [{"func": "count", "alias": "open_tickets"}],
+        "group_by": [{"column": "priorities.name"}],
+        "filters": [{"column": "ticket_statuses.is_open", "op": "eq", "value": "true"}],
+        "order_by": [{"column": "open_tickets", "direction": "desc"}]
+      }
+    }
+  ],
+  "examples": [
+    "List all open high-priority tickets.",
+    "How many tickets does each team have open?",
+    "Which tickets were created in the last 7 days?",
+    "Average resolution time by priority."
+  ]
+}

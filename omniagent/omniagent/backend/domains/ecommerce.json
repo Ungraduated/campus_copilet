@@ -1,0 +1,36 @@
+{
+  "key": "ecommerce",
+  "name": "E-commerce",
+  "description": "An online store's products, categories, inventory, customers and orders.",
+  "database": "omniagent_ecommerce",
+  "hints": "Order status is one of pending, paid, shipped, delivered, cancelled. Revenue should normally exclude cancelled orders. Stock lives in inventory.quantity_in_stock. Customer emails are not accessible.",
+  "tables": {
+    "categories": {"description": "Product categories.", "columns": "*"},
+    "products": {"description": "Products for sale.", "columns": "*"},
+    "inventory": {"description": "Current stock per product.", "columns": "*"},
+    "customers": {"description": "Customers.", "columns": "*", "exclude": ["email"]},
+    "orders": {"description": "Customer orders.", "columns": "*"},
+    "order_items": {"description": "Line items of each order.", "columns": "*"}
+  },
+  "reports": [
+    {
+      "name": "low_stock_products",
+      "description": "Products with fewer than 10 units in stock",
+      "kind": "records",
+      "plan": {
+        "table": "products",
+        "joins": ["inventory"],
+        "select": ["products.sku", "products.name", "inventory.warehouse", "inventory.quantity_in_stock", "inventory.reorder_level"],
+        "filters": [{"column": "inventory.quantity_in_stock", "op": "lt", "value": "10"}],
+        "order_by": [{"column": "inventory.quantity_in_stock", "direction": "asc"}],
+        "limit": 100
+      }
+    }
+  ],
+  "examples": [
+    "Which products have fewer than 10 units in stock?",
+    "How many orders were placed this month?",
+    "Show monthly revenue for the last 3 months.",
+    "Top 5 products by units sold."
+  ]
+}
